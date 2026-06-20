@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solver de Derivadas de Cálculo</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["\\(", "\\)"]],
+        displayMath: [["\\[", "\\]"]]
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <p class="eyebrow">Cálculo diferencial · Solver didáctico</p>
+    <h1>Solver de Derivadas de Cálculo</h1>
+    <p>
+      Aplicación web para resolver derivadas paso a paso, aplicar regla de la cadena,
+      derivación implícita, logaritmos, trigonométricas inversas y análisis de pendientes.
+    </p>
+  </header>
+
+  <main class="layout">
+    <aside class="card controls-panel">
+      <h2>Entrada del ejercicio</h2>
+
+      <section class="solver-input-card">
+        <label>
+          Escribe una función o elige un ejemplo
+          <textarea id="expressionInput" rows="4" spellcheck="false">sqrt(3-x^2)</textarea>
+        </label>
+
+        <div class="input-help">
+          Ejemplos admitidos: <code>sqrt(3-x^2)</code>, <code>ln(sqrt(3-x^2))</code>,
+          <code>arctan(3x^2)</code>, <code>arccot((1+x)/(1-x))</code>,
+          <code>y^3+y^2-5y-x^2=-4</code>.
+        </div>
+
+        <button id="solveInputBtn" type="button">Resolver entrada</button>
+      </section>
+
+      <label>
+        Ejercicio guiado
+        <select id="exerciseSelect"></select>
+      </label>
+
+      <div class="button-grid">
+        <button id="solveBtn" type="button">Resolver</button>
+        <button id="copyStepsBtn" type="button" class="secondary">Copiar pasos</button>
+        <button id="downloadBtn" type="button" class="secondary">Guardar gráfica PNG</button>
+        <button id="clearHistoryBtn" type="button" class="secondary">Limpiar historial</button>
+      </div>
+
+      <section class="info-box">
+        <h3>Reglas disponibles</h3>
+        <ul>
+          <li>Regla de la potencia.</li>
+          <li>Regla de la cadena.</li>
+          <li>Derivada de \( \ln(u) \).</li>
+          <li>Derivación implícita.</li>
+          <li>Derivada de \( \arctan(u) \).</li>
+          <li>Derivada de \( \operatorname{arccot}(u) \).</li>
+        </ul>
+      </section>
+
+      <section class="info-box">
+        <h3>Historial</h3>
+        <div id="historyList" class="history-list"></div>
+      </section>
+    </aside>
+
+    <section class="card main-panel">
+      <section class="result-header">
+        <div>
+          <p class="section-label">Resultado</p>
+          <h2 id="exerciseTitle">Ejercicio</h2>
+        </div>
+        <span id="ruleBadge">Regla</span>
+      </section>
+
+      <section class="formula-grid">
+        <article>
+          <p class="section-label">Función original</p>
+          <div id="originalFormula" class="math-box"></div>
+        </article>
+
+        <article>
+          <p class="section-label">Derivada final</p>
+          <div id="derivativeFormula" class="math-box result"></div>
+        </article>
+      </section>
+
+      <section class="card-inner">
+        <div class="section-header">
+          <div>
+            <p class="section-label">Solución paso a paso</p>
+            <h2>Procedimiento</h2>
+          </div>
+          <div class="step-actions">
+            <button id="prevStepBtn" type="button" class="secondary compact">Anterior</button>
+            <button id="nextStepBtn" type="button" class="secondary compact">Siguiente</button>
+          </div>
+        </div>
+
+        <div class="solver-layout">
+          <aside id="stepIndex" class="step-index"></aside>
+          <article id="stepDetail" class="step-detail"></article>
+        </div>
+      </section>
+
+      <section class="card-inner">
+        <div class="section-header">
+          <div>
+            <p class="section-label">Evaluación</p>
+            <h2>Pendiente en un punto</h2>
+          </div>
+        </div>
+
+        <div id="explicitInputs" class="evaluation-grid">
+          <label>
+            Valor de x
+            <input id="xValue" type="number" step="0.1" value="1" />
+          </label>
+        </div>
+
+        <div id="implicitInputs" class="evaluation-grid hidden">
+          <label>
+            Valor de x
+            <input id="implicitXValue" type="number" step="0.1" value="1" />
+          </label>
+          <label>
+            Valor de y
+            <input id="implicitYValue" type="number" step="0.1" value="2" />
+          </label>
+        </div>
+
+        <div class="button-inline">
+          <button id="evaluateBtn" type="button">Evaluar pendiente</button>
+        </div>
+
+        <div id="evaluationResult" class="feedback"></div>
+      </section>
+
+      <section class="card-inner">
+        <div class="section-header">
+          <div>
+            <p class="section-label">Visualización</p>
+            <h2>Gráfica de función, derivada y tangente</h2>
+          </div>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="graphCanvas" width="980" height="620" aria-label="Gráfica de función y derivada"></canvas>
+        </div>
+      </section>
+    </section>
+
+    <section class="card practice-panel">
+      <div class="section-header">
+        <div>
+          <p class="section-label">Modo examen</p>
+          <h2>Práctica rápida</h2>
+        </div>
+        <button id="gradeQuizBtn" type="button" class="secondary compact">Calificar</button>
+      </div>
+
+      <div id="quizArea"></div>
+      <div id="quizFeedback" class="feedback"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Proyecto de portafolio desarrollado con HTML, CSS, JavaScript, Canvas, MathJax y LocalStorage.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
